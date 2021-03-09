@@ -44,7 +44,8 @@ class ModuleManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModuleManager(const QStringList &t_sessionList, QObject *t_parent = nullptr);
+    explicit ModuleManager(QString p_deviceName, QString p_modManConfigFile, QString p_sessionPath, QString p_modulePath, QObject *t_parent = nullptr);
+    explicit ModuleManager(QString p_deviceName,QObject *p_parent = nullptr);
     ~ModuleManager() override;
     /**
      * @brief loads the modules from the MODMAN_MODULE_PATH
@@ -154,6 +155,10 @@ private:
      */
     void saveModuleConfig(ModuleData *t_moduleData);
 
+    QString m_deviceName;
+    QString m_modManConfigPath  = "/etc/zera/modules/modulemanager_config.json";
+    QString m_sessionPath       = "/etc/zera/modules/";
+    QString m_modulePath        = "/usr/lib/zera-modules";
     QHash<QString, MeasurementModuleFactory*> m_factoryTable;
     QList<ModuleData *> m_moduleList;
     QQueue<ModuleData *> m_deferredStartList;

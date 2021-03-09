@@ -53,25 +53,23 @@ public:
 };
 
 
-ModuleManager::ModuleManager(const QStringList &t_sessionList, QObject *t_parent) :
+ModuleManager::ModuleManager(QString p_deviceName, QString p_modManConfigFile, QString p_sessionPath, QString p_modulePath, QObject *t_parent) :
     QObject(t_parent),
+    m_deviceName(p_deviceName),
+    m_modManConfigPath(p_modManConfigFile),
+    m_sessionPath(p_sessionPath),
+    m_modulePath(p_modulePath),
     m_proxyInstance(Zera::Proxy::cProxy::getInstance()),
     m_moduleStartLock(false)
 {
-    QStringList entryList = QDir(MODMAN_SESSION_PATH).entryList(QStringList({"*.json"}));
-    QSet<QString> fileSet(entryList.begin(), entryList.end());
-    QSet<QString> expectedSet(t_sessionList.begin(), t_sessionList.end());
-    if(fileSet.contains(expectedSet))
-    {
-        m_sessionsAvailable = t_sessionList;
-    }
-    else
-    {
-        QSet<QString> missingSessions = expectedSet;
-        missingSessions.subtract(fileSet);
-        qCritical() << "Missing session file(s)" << missingSessions;
-    }
-    qDebug() << "sessions available:" << m_sessionsAvailable;
+}
+
+ModuleManager::ModuleManager(QString p_deviceName,QObject *t_parent):
+    QObject(t_parent),
+    m_deviceName(p_deviceName),
+    m_proxyInstance(Zera::Proxy::cProxy::getInstance()),
+    m_moduleStartLock(false)
+{
 }
 
 ModuleManager::~ModuleManager()
@@ -88,7 +86,7 @@ ModuleManager::~ModuleManager()
 bool ModuleManager::loadModules()
 {
     bool retVal = false;
-    QDir moduleDir(MODMAN_MODULE_PATH);
+    QDir moduleDir(m_modulePath);
     qDebug() << "Loading modules";
     foreach (QObject *staticModule, QPluginLoader::staticInstances())
     {
@@ -223,7 +221,7 @@ void ModuleManager::changeSessionFile(const QString &t_newSessionPath)
 {
     if(m_sessionPath != t_newSessionPath)
     {
-        const QString finalSessionPath = QString("%1%2").arg(MODMAN_SESSION_PATH).arg(t_newSessionPath);
+        const QString finalSessionPath = QString("%1%2").arg(m_sessionPath).arg(t_newSessionPath);
         if(QFile::exists(finalSessionPath))
         {
             if(m_moduleStartLock == false) // do not mess up the state machines
