@@ -15,6 +15,7 @@
 #include <QJsonObject>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QIntValidator>
 
 
 namespace ZeraModules
@@ -62,8 +63,10 @@ ModuleManager::ModuleManager(QString p_deviceName, QString p_modManConfigFile, Q
     m_proxyInstance(Zera::Proxy::cProxy::getInstance()),
     m_moduleStartLock(false)
 {
+    m_entity=VfCpp::VeinModuleEntity::Ptr(new VfCpp::VeinModuleEntity(1));
     QObject::connect(&m_sessionLoader, &JsonSessionLoader::sigLoadModule, this, &ZeraModules::ModuleManager::startModule);
     QObject::connect(this, &ZeraModules::ModuleManager::sigSessionSwitched, &m_sessionLoader, &JsonSessionLoader::loadSession);
+    QObject::connect(m_entity.data(),&VfCpp::VeinModuleEntity::sigAttached,this,&ModuleManager::initOnce);
 }
 
 ModuleManager::ModuleManager(QString p_deviceName,QObject *t_parent):
@@ -72,8 +75,10 @@ ModuleManager::ModuleManager(QString p_deviceName,QObject *t_parent):
     m_proxyInstance(Zera::Proxy::cProxy::getInstance()),
     m_moduleStartLock(false)
 {
+    m_entity=VfCpp::VeinModuleEntity::Ptr(new VfCpp::VeinModuleEntity(1));
     QObject::connect(&m_sessionLoader, &JsonSessionLoader::sigLoadModule, this, &ZeraModules::ModuleManager::startModule);
     QObject::connect(this, &ZeraModules::ModuleManager::sigSessionSwitched, &m_sessionLoader, &JsonSessionLoader::loadSession);
+    QObject::connect(m_entity.data(),&VfCpp::VeinModuleEntity::sigAttached,this,&ModuleManager::initOnce);
 }
 
 ModuleManager::~ModuleManager()
@@ -85,6 +90,28 @@ ModuleManager::~ModuleManager()
     }
     m_moduleList.clear();
     m_proxyInstance->deleteLater();
+}
+
+void ModuleManager::initOnce()
+{
+    if(!m_isInitialized){
+        m_isInitialized=true;
+        m_entity->createComponent("EntityName","_System",VfCpp::cVeinModuleComponent::Direction::constant);
+        VfCpp::cVeinModuleComponent::WPtr tmpmodPaused=m_entity->createComponent("ModulesPaused",false,VfCpp::cVeinModuleComponent::Direction::inOut);
+        m_modulesPaused=tmpmodPaused;
+        QObject::connect(tmpmodPaused.toStrongRef().data(),&VfCpp::cVeinModuleComponent::sigValueChanged,this,&ModuleManager::setModulesPaused);
+
+
+        VeinLambdaValidator* tmpValidator=new VeinLambdaValidator([this](QVariant p_value)->QValidator::State{
+            if(m_availableSessions.value().contains(p_value.toString())){
+                return QValidator::State::Acceptable;
+            }
+            return QValidator::State::Invalid;
+        });
+        m_availableSessions=m_entity->createComponent("SessionsAvailable",QStringList(),VfCpp::cVeinModuleComponent::Direction::out);
+        m_currentSession=m_entity->createComponent("Session",QString(),VfCpp::cVeinModuleComponent::Direction::inOut,tmpValidator);
+        readModuleManagerConfig();
+    }
 }
 
 bool ModuleManager::loadModules()
@@ -248,8 +275,9 @@ void ModuleManager::changeSessionFile(const QString &t_newSessionPath)
     }
 }
 
-void ModuleManager::setModulesPaused(bool t_paused)
+void ModuleManager::setModulesPaused(QVariant p_paused)
 {
+    bool t_paused=p_paused.toBool();
     for(ModuleData *module : m_moduleList)
     {
         if(t_paused)
@@ -356,5 +384,10 @@ void ModuleManager::saveModuleConfig(ModuleData *t_moduleData)
     {
         qWarning() << "Configuration could not be retrieved from module:" << t_moduleData->m_uniqueName;
     }
+}
+
+VfCpp::VeinModuleEntity* ModuleManager::entity() const
+{
+    return m_entity.data();
 }
 }

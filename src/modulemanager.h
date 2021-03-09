@@ -7,11 +7,9 @@
 #include <QQueue>
 #include <QTimer>
 
+#include <vfcpp.h>
+#include <virtualmodule.h>
 
-#include <veinmoduleentity.h>
-#include <veinmodulecomponent.h>
-#include <veinsharedcomp.h>
-#include <veinrpcfuture.h>
 #include "jsonsessionloader.h"
 
 namespace Zera
@@ -73,6 +71,7 @@ public:
      */
     void setEventHandler(ModuleEventHandler *t_eventHandler);
 
+    VfCpp::VeinModuleEntity* entity() const;
 signals:
     /**
      * @brief called when the session is switched via changeSessionFile()
@@ -87,6 +86,8 @@ signals:
     void sigModulesLoaded(const QString &t_sessionPath, const QStringList &t_sessionsAvailable);
 
 public slots:
+
+    void initOnce();
     /**
      * @brief starts the module, or adds it to the m_deferredStartList if a startup is in progress
      * connected to the signal JsonSessionLoader::sigLoadModule , but also called in onModuleStartNext()
@@ -107,14 +108,15 @@ public slots:
      */
     void changeSessionFile(const QString &t_newSessionPath);
 
+
+
+private slots:
     /**
      * @brief pauses the value component event emittion of the modules
      * @warning do not confuse this with stopModules(), the called VirtualModule::stopModule() function only pauses the module!
      * @param t_paused
      */
-    void setModulesPaused(bool t_paused);
-
-private slots:
+    void setModulesPaused(QVariant p_paused);
     /**
      * @brief connected to the moduleDeactivated signal called from MeasurementModuleFactory::destroyModule()
      * deletes the ModuleData entry from the m_moduleList and connects the VirtualModule::destroyed signal to checkModuleList()
@@ -147,13 +149,19 @@ private slots:
     void onModuleEventSystemAdded(VeinEvent::EventSystem *t_eventSystem);
 
 private:
-
-    VfCpp::VeinModuleEntity::Ptr m_entity;
     /**
      * @brief writes the changed configuration file of a module back to disk
      * @param t_moduleData
      */
     void saveModuleConfig(ModuleData *t_moduleData);
+
+    VfCpp::VeinModuleEntity::Ptr m_entity;
+    bool m_isInitialized;
+
+    VfCpp::VeinSharedComp<QString> m_currentSession;
+    VfCpp::VeinSharedComp<QStringList> m_availableSessions;
+    VfCpp::VeinSharedComp<bool> m_modulesPaused;
+
 
     QString m_deviceName;
     QString m_modManConfigPath  = "/etc/zera/modules/modulemanager_config.json";
