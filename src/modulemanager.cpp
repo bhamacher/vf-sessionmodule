@@ -62,6 +62,8 @@ ModuleManager::ModuleManager(QString p_deviceName, QString p_modManConfigFile, Q
     m_proxyInstance(Zera::Proxy::cProxy::getInstance()),
     m_moduleStartLock(false)
 {
+    QObject::connect(&m_sessionLoader, &JsonSessionLoader::sigLoadModule, this, &ZeraModules::ModuleManager::startModule);
+    QObject::connect(this, &ZeraModules::ModuleManager::sigSessionSwitched, &m_sessionLoader, &JsonSessionLoader::loadSession);
 }
 
 ModuleManager::ModuleManager(QString p_deviceName,QObject *t_parent):
@@ -70,6 +72,8 @@ ModuleManager::ModuleManager(QString p_deviceName,QObject *t_parent):
     m_proxyInstance(Zera::Proxy::cProxy::getInstance()),
     m_moduleStartLock(false)
 {
+    QObject::connect(&m_sessionLoader, &JsonSessionLoader::sigLoadModule, this, &ZeraModules::ModuleManager::startModule);
+    QObject::connect(this, &ZeraModules::ModuleManager::sigSessionSwitched, &m_sessionLoader, &JsonSessionLoader::loadSession);
 }
 
 ModuleManager::~ModuleManager()

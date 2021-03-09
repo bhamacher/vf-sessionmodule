@@ -2,7 +2,6 @@
 #define MODULELOADER_H
 
 #include <QObject>
-#include <virtualmodule.h>
 #include <QVariant>
 #include <QHash>
 #include <QQueue>
@@ -13,6 +12,7 @@
 #include <veinmodulecomponent.h>
 #include <veinsharedcomp.h>
 #include <veinrpcfuture.h>
+#include "jsonsessionloader.h"
 
 namespace Zera
 {
@@ -167,12 +167,13 @@ private:
     VeinEvent::StorageSystem *m_storage=nullptr;
     ModuleEventHandler *m_eventHandler=nullptr;
     LicenseSystem *m_licenseSystem=nullptr;
+    JsonSessionLoader m_sessionLoader;
 
-    QString m_sessionPath;
-    QList<QString> m_sessionsAvailable;
+    QStringList m_sessionsAvailable;
 
     bool m_moduleStartLock;
 };
+
 }
 
 #endif // MODULELOADER_H
