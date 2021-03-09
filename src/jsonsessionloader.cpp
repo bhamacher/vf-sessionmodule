@@ -38,6 +38,7 @@ void JsonSessionLoader::loadSession(QString t_filePath)
                 QJsonValue tmpModules = rootObj.value("modules");
                 if(tmpModules.isArray()) {
                     QJsonArray moduleArray = tmpModules.toArray();
+                    m_currentSessionFile=t_filePath;
                     for(int i = 0; i < moduleArray.count(); i++) {
                         QJsonValue tmpObject = moduleArray.at(i);
                         if(tmpObject.isObject()) {
