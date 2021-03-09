@@ -37,6 +37,7 @@ signals:
     void sigSerialNumberInitialized();
 
 private:
+    QString readSerialNumber(QUrl p_fullFilepath);
     /**
    * @brief loads the license data from ":/license_cert.pem"
    * @return

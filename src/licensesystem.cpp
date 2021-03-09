@@ -61,6 +61,7 @@ LicenseSystem::LicenseSystem(const QSet<QUrl> &t_licenseURLs, QObject *t_parent)
                 {
                     qWarning() << "Error parsing license document:" << licenseFilePath << "\n" << "parse error:" << parseError.errorString();
                 }
+                setDeviceSerial(readSerialNumber(p_sNFullFilePath));
             }
         }
     }
@@ -118,6 +119,19 @@ void LicenseSystem::setDeviceSerial(const QString &t_serialNumber)
 bool LicenseSystem::serialNumberIsInitialized() const
 {
     return m_serialNumberInitialized;
+}
+
+
+QString LicenseSystem::readSerialNumber(QUrl p_fullFilepath)
+{
+    QFile sNFile(p_fullFilepath.toString()); // serial number file
+    sNFile.open(QFile::ReadOnly);
+    QString sNNumber = sNFile.readLine();
+    if(sNNumber.isEmpty()){
+        // This serial number indicates debugging with master key
+        sNNumber = "000000000";
+    }
+    return sNNumber;
 }
 
 QByteArray LicenseSystem::loadCertData() const
