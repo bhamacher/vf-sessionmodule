@@ -15,7 +15,7 @@ QT_BEGIN_NAMESPACE
 #include <QDateTime>
 QT_END_NAMESPACE
 
-LicenseSystem::LicenseSystem(const QSet<QUrl> &t_licenseURLs, QObject *t_parent) : VeinEvent::EventSystem(t_parent),
+LicenseSystem::LicenseSystem(const QSet<QUrl> &t_licenseURLs, QUrl p_sNFullFilePath, QObject *t_parent) : QObject(t_parent),
     m_licenseURLs(t_licenseURLs),
     m_certData(loadCertData()),
     m_deviceSerial(QString("SERIAL NUMBER NOT FOUND!"))
@@ -232,44 +232,6 @@ bool LicenseSystem::isValidLicenseExpiryDate(const QString t_dateString) const
 bool LicenseSystem::isValidLicenseDeviceSerial(const QString t_deviceSerial) const
 {
     return (t_deviceSerial == s_universalSerialDescriptor || t_deviceSerial == m_deviceSerial);
-}
-
-bool LicenseSystem::processEvent(QEvent *t_event)
-{
-    bool retVal = false;
-    if(t_event->type()==VeinEvent::CommandEvent::eventType())
-    {
-        VeinEvent::CommandEvent *cEvent = nullptr;
-        VeinEvent::EventData *evData = nullptr;
-        cEvent = static_cast<VeinEvent::CommandEvent *>(t_event);
-        Q_ASSERT(cEvent != nullptr);
-
-        evData = cEvent->eventData();
-        Q_ASSERT(evData != nullptr);
-
-        //statusmodule initializes PAR_SerialNr with our serial number to check the licenses against
-        if(evData->entityId() == 1150
-                && evData->type() == VeinComponent::ComponentData::dataType()
-                && evData->eventOrigin() == VeinEvent::EventData::EventOrigin::EO_LOCAL)
-        {
-            VeinComponent::ComponentData *cData = static_cast<VeinComponent::ComponentData *>(evData);
-
-            if(cData->componentName() == QString("PAR_SerialNr"))
-            {
-                if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_ADD || cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET)
-                {
-                    retVal = true;
-                    const QString newSerialNumber = cData->newValue().toString();
-                    if((newSerialNumber.isEmpty() == false) && (m_deviceSerial != newSerialNumber))
-                    {
-                        qWarning() << "Changed device serial from:" << m_deviceSerial << "to:" << cData->newValue() << cData->oldValue();
-                        setDeviceSerial(newSerialNumber);
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
 }
 
 //constexpr definition, see: https://stackoverflow.com/questions/8016780/undefined-reference-to-static-constexpr-char

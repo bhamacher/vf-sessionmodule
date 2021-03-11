@@ -3,17 +3,18 @@
 
 #include "modman_util.h"
 
-#include <ve_eventsystem.h>
+#include <QObject>
 
+#include <QSet>
 #include <QMap>
 #include <QHash>
 #include <QUrl>
 
-class LicenseSystem : public VeinEvent::EventSystem
+class LicenseSystem : public QObject
 {
     Q_OBJECT
 public:
-    LicenseSystem(const QSet<QUrl> &t_licenseURLs, QObject *t_parent = nullptr);
+    LicenseSystem(const QSet<QUrl> &t_licenseURLs, QUrl p_sNFullFilePath, QObject *t_parent = nullptr);
 
     bool isSystemLicensed(const QString &t_uniqueModuleName);
     /**
@@ -94,9 +95,6 @@ private:
     static constexpr QLatin1String s_universalLicenseDescriptor = modman_util::to_latin1("universalLicense");
     static constexpr QLatin1String s_universalSerialDescriptor = modman_util::to_latin1("universalSerial");
 
-    // EventSystem interface
-public:
-    bool processEvent(QEvent *t_event) override;
 };
 
 #endif // LICENSESYSTEM_H
