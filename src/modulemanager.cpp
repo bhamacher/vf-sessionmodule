@@ -16,6 +16,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QIntValidator>
+#include <QJsonArray>
 
 
 namespace ZeraModules
@@ -112,6 +113,55 @@ void ModuleManager::initOnce()
         m_currentSession=m_entity->createComponent("Session",QString(),VfCpp::cVeinModuleComponent::Direction::inOut,tmpValidator);
         readModuleManagerConfig();
     }
+}
+
+void ModuleManager::readModuleManagerConfig()
+{
+    QJsonDocument jsonConfig;
+    QFile configFile(m_modManConfigPath);
+    if(configFile.exists() && configFile.open(QFile::ReadOnly))
+    {
+        jsonConfig = QJsonDocument::fromJson(configFile.readAll());
+    }
+    // if the devicename is empty we will use the default name defined in the configuration
+    if(m_deviceName.isEmpty()){
+        m_deviceName = jsonConfig.object().value("deviceName").toString();
+    }
+    if(!m_deviceName.isEmpty()){
+        QStringList tmpSessionList = QVariant(jsonConfig.object().value(m_deviceName).toObject().value("availableSessions").toArray().toVariantList()).toStringList();
+
+        QStringList entryList = QDir(m_sessionPath).entryList(QStringList({"*.json"}));
+        QSet<QString> expectedSet(tmpSessionList.begin(), tmpSessionList.end());
+        QSet<QString> fileSet(entryList.begin(), entryList.end());
+        QSet<QString> missingSessions = expectedSet;
+        missingSessions.subtract(fileSet);
+
+        if(missingSessions.size() > 0){
+            qCritical() << "Missing session file(s)" << missingSessions;
+        }
+        // if sessions are missing we can not offer them
+        expectedSet.subtract(missingSessions);
+        m_sessionsAvailable=expectedSet.values();
+        QString defaultSession=jsonConfig.object().value(m_deviceName).toObject().value("defaultSession").toString();
+        if(!m_sessionsAvailable.contains(defaultSession)){
+            if(m_sessionsAvailable.size()>0){
+                defaultSession=m_sessionsAvailable[0];
+            }
+
+        }
+
+        m_sessionLoader.loadSession(QString("%1%2").arg(m_sessionPath).arg(defaultSession));
+        m_currentSession=defaultSession;
+        m_availableSessions=m_sessionsAvailable;
+
+
+        qDebug() << "sessions available:" << m_sessionsAvailable;
+
+
+
+
+    }
+
 }
 
 bool ModuleManager::loadModules()

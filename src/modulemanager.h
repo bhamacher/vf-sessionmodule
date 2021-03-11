@@ -150,6 +150,13 @@ private slots:
 
 private:
     /**
+     * @brief readModuleManagerConfig
+     * reads the modulemanger config file.
+     * The file is located at m_modManConfigPath.
+     * The default location is /etc/zera/modules/modulemanager_config.json
+     */
+    void readModuleManagerConfig();
+    /**
      * @brief writes the changed configuration file of a module back to disk
      * @param t_moduleData
      */
