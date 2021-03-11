@@ -67,6 +67,7 @@ ModuleManager::ModuleManager(QString p_deviceName, QString p_modManConfigFile, Q
     QObject::connect(&m_sessionLoader, &JsonSessionLoader::sigLoadModule, this, &ZeraModules::ModuleManager::startModule);
     QObject::connect(this, &ZeraModules::ModuleManager::sigSessionSwitched, &m_sessionLoader, &JsonSessionLoader::loadSession);
     QObject::connect(m_entity.data(),&VfCpp::VeinModuleEntity::sigAttached,this,&ModuleManager::initOnce);
+    loadModules();
 }
 
 ModuleManager::ModuleManager(QString p_deviceName,QObject *t_parent):
@@ -79,6 +80,7 @@ ModuleManager::ModuleManager(QString p_deviceName,QObject *t_parent):
     QObject::connect(&m_sessionLoader, &JsonSessionLoader::sigLoadModule, this, &ZeraModules::ModuleManager::startModule);
     QObject::connect(this, &ZeraModules::ModuleManager::sigSessionSwitched, &m_sessionLoader, &JsonSessionLoader::loadSession);
     QObject::connect(m_entity.data(),&VfCpp::VeinModuleEntity::sigAttached,this,&ModuleManager::initOnce);
+    loadModules();
 }
 
 ModuleManager::~ModuleManager()
