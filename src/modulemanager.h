@@ -51,11 +51,6 @@ public:
      */
     bool loadModules();
     /**
-     * @brief loads the scripts for the ScriptSystem from the qrc resource ":/scripts"
-     * @param t_scriptSystem
-     */
-    void loadScripts(VeinScript::ScriptSystem *t_scriptSystem);
-    /**
      * @brief sets the storage that is passed to the modules so they can get values without fetching them all the time
      * @param t_storage
      */

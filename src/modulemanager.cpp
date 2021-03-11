@@ -5,7 +5,6 @@
 #include <proxy.h>
 
 #include <ve_eventsystem.h>
-#include <vsc_scriptsystem.h>
 
 #include <QPluginLoader>
 #include <abstractmodulefactory.h>
@@ -192,21 +191,6 @@ bool ModuleManager::loadModules()
     return retVal;
 }
 
-void ModuleManager::loadScripts(VeinScript::ScriptSystem *t_scriptSystem)
-{
-    //load builtin scripts
-    const QDir virtualFiles(":/scripts");
-    const QStringList scriptList = virtualFiles.entryList();
-    for(const QString &scriptFilePath : scriptList)
-    {
-        const QString dataLocation = QString("%1/%2").arg(virtualFiles.path()).arg(scriptFilePath);
-        qDebug() << "Loading script:" << dataLocation;
-        if(t_scriptSystem->loadScriptFromFile(dataLocation) == false)
-        {
-            qWarning() << "Error loading script file:" << scriptFilePath;
-        }
-    }
-}
 
 void ModuleManager::setStorage(VeinEvent::StorageSystem *t_storage)
 {
