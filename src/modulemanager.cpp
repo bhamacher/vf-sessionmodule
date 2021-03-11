@@ -270,7 +270,7 @@ void ModuleManager::changeSessionFile(const QString &t_newSessionPath)
         }
         else
         {
-            qWarning() << "Session file not found:" << finalSessionPath << "Search path:" << MODMAN_SESSION_PATH;
+            qWarning() << "Session file not found:" << finalSessionPath << "Search path:" << m_sessionPath;
         }
     }
 }
