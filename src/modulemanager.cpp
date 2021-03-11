@@ -1,21 +1,18 @@
 #include "modulemanager.h"
 
-#include "moduleeventhandler.h"
-#include "licensesystem.h"
-#include <proxy.h>
-
-#include <ve_eventsystem.h>
-
 #include <QPluginLoader>
 #include <abstractmodulefactory.h>
 #include <QDir>
 #include <QSaveFile>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QCoreApplication>
 #include <QDebug>
 #include <QIntValidator>
 #include <QJsonArray>
+
+#include <proxy.h>
+#include "licensesystem.h"
+#include "moduleeventhandler.h"
 
 
 namespace ZeraModules
@@ -163,6 +160,16 @@ void ModuleManager::readModuleManagerConfig()
 
     }
 
+}
+
+bool ModuleManager::loadLicensedModule(QString p_moduleName, VeinEvent::EventSystem* p_module)
+{
+    if(m_licenseSystem->isSystemLicensed(p_moduleName))
+    {
+        m_eventHandler->addSubsystem(p_module);
+        return true;
+    }
+    return false;
 }
 
 bool ModuleManager::loadModules()

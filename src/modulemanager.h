@@ -45,6 +45,8 @@ public:
     explicit ModuleManager(QString p_deviceName, QString p_modManConfigFile, QString p_sessionPath, QString p_modulePath, QObject *t_parent = nullptr);
     explicit ModuleManager(QString p_deviceName,QObject *p_parent = nullptr);
     ~ModuleManager() override;
+
+    bool loadLicensedModule(QString moduleName, VeinEvent::EventSystem* p_module);
     /**
      * @brief loads the modules from the MODMAN_MODULE_PATH
      * @return
