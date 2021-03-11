@@ -31,6 +31,7 @@ find_package(VfEvent REQUIRED)
 find_package(VfCpp REQUIRED)
 find_Package(MeasurementModuleInterface REQUIRED)
 find_package(zeraproxy REQUIRED)
+find_package(VfCryptoBridge REQUIRED)
 
 
 
@@ -70,6 +71,7 @@ target_link_libraries(VfSession
     VeinMeta::VfCpp
     ZeraClasses::MeasurementModuleInterface
     ZeraClasses::zeraproxy
+    VeinMeta::VfCryptoBridge
     )
 
 
