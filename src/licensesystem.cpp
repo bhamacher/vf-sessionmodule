@@ -124,7 +124,7 @@ bool LicenseSystem::serialNumberIsInitialized() const
 
 QString LicenseSystem::readSerialNumber(QUrl p_fullFilepath)
 {
-    QFile sNFile(p_fullFilepath.toString()); // serial number file
+    QFile sNFile(p_fullFilepath.toLocalFile()); // serial number file
     sNFile.open(QFile::ReadOnly);
     QString sNNumber = sNFile.readLine();
     if(sNNumber.isEmpty()){
