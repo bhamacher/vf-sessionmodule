@@ -53,12 +53,14 @@ public:
 
 ModuleManager::ModuleManager(QString p_deviceName, QString p_modManConfigFile, QString p_sessionPath, QString p_modulePath, QObject *t_parent) :
     QObject(t_parent),
+    m_isInitialized(false),
     m_deviceName(p_deviceName),
     m_modManConfigPath(p_modManConfigFile),
     m_sessionPath(p_sessionPath),
     m_modulePath(p_modulePath),
     m_proxyInstance(Zera::Proxy::cProxy::getInstance()),
     m_moduleStartLock(false)
+
 {
     m_entity=VfCpp::VeinModuleEntity::Ptr(new VfCpp::VeinModuleEntity(1));
     QObject::connect(&m_sessionLoader, &JsonSessionLoader::sigLoadModule, this, &ZeraModules::ModuleManager::startModule);
